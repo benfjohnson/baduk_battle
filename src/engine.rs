@@ -55,17 +55,26 @@ impl Game {
         }
     }
 
+    fn validate_turn_phase(&self, pm: &PlayerMove) -> bool {
+        false
+    }
+
     pub fn try_move(&mut self, pm: PlayerMove) -> Result<&Game, &str> {
+        // IF Complete:
+        // * error, game is over
+
         // IF StonePlacement:
         // * validate correct turn and correct game phase
         // * validate move isn't suicide
         // * validate move isn't a ko
         // * calculate captured pieces, if any affected
         // * save game history
+        // * change turn
 
         // IF Pass:
         // * validate correct turn and game phase
         // * determine whether to transition game
+        // * change turn
 
         // IF SubmitScore:
         // * validate correct game phase only (turn doesn't matter)
@@ -78,10 +87,37 @@ impl Game {
     }
 }
 
+// TODO: Figure out how to use internal modifier to allow Game creation with values passed in (to facilitate testing)
 #[cfg(test)]
 mod tests {
+    use super::*;
+
     #[test]
-    fn test_try_move() {
-        assert_eq!(1, 1);
+    fn test_validate_turn_phase() {
+        let g: Game = Game::new();
+
+        // player cannot play out of turn
+        assert_eq!(
+            g.validate_turn_phase(&(Color::White, GameAction::StonePlacement(0, 0))),
+            false
+        );
+
+        // can only place stone during NotStarted and InProgress
+        assert_eq!(
+            g.validate_turn_phase(&(Color::Black, GameAction::SubmitScore)),
+            false
+        );
+        assert_eq!(
+            g.validate_turn_phase(&(Color::Black, GameAction::AcceptScore)),
+            false
+        );
+
+        // can only submit or accept during the InReview phase
+        assert_eq!(
+            g.validate_turn_phase(&(Color::Black, GameAction::AcceptScore)),
+            false
+        );
+
+        // cannot move during Complete phase
     }
 }

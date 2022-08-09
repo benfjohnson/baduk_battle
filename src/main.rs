@@ -1,5 +1,7 @@
 mod engine;
 
+use engine::*;
+
 fn main() {
-    let game = engine::Game::new();
+    let game = Game::new();
 }
